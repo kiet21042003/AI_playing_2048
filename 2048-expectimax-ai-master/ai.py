@@ -14,6 +14,11 @@ class AI():
         return best_move
 
     def eval_board(self, board, n_empty): 
+        """
+        Return the utility of the grid at given state. The utility itself includes 3 different components, which are empty_u(tility), smooth_u(tility), big_t_u(tility).
+        empty_u represents for the contribution of empty cells at that state to the current utility
+        smoothness_u represents for the "balance" of the current state
+        """
         grid = board.grid
 
         utility = 0
@@ -24,20 +29,23 @@ class AI():
         smoothness -= np.sum(np.abs(s_grid[::,0] - s_grid[::,1]))
         smoothness -= np.sum(np.abs(s_grid[::,1] - s_grid[::,2]))
         smoothness -= np.sum(np.abs(s_grid[::,2] - s_grid[::,3]))
+
         smoothness -= np.sum(np.abs(s_grid[0,::] - s_grid[1,::]))
         smoothness -= np.sum(np.abs(s_grid[1,::] - s_grid[2,::]))
         smoothness -= np.sum(np.abs(s_grid[2,::] - s_grid[3,::]))
         
-        empty_w = 100000
-        smoothness_w = 3
+        empty_w = 100000 # Empty weight
+        smoothness_w = 9 # Smootheness weight
 
-        empty_u = n_empty * empty_w
-        smooth_u = smoothness ** smoothness_w
-        big_t_u = big_t
+        empty_u = n_empty * empty_w             # Empty utility 
+        smooth_u = smoothness ** smoothness_w   # Smooth utility
+        big_t_u = big_t                         # Big_t utility
 
         utility += big_t
         utility += empty_u
         utility += smooth_u
+
+        # print((utility, empty_u, smooth_u, big_t_u))
 
         return (utility, empty_u, smooth_u, big_t_u)
 
@@ -99,3 +107,11 @@ class AI():
                 utility_sum[i] += utility[i] * t[2]
 
         return tuple(utility_sum)
+if __name__ == "__main__":
+    ai = AI()
+    grid = np.array([[1,1,1,0], [1,1,1,0], [1,1,1,0], [1,1,1,0]])
+    # s_grid = np.sqrt(grid)
+    # print(s_grid)
+    # print(np.sum(np.abs(s_grid[::,0] - s_grid[::,1])))
+    
+    print(ai.eval_board(grid, 4))
