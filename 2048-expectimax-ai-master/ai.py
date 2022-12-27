@@ -1,3 +1,6 @@
+"""
+This file contains functions used by AI when processes information
+"""
 import math
 import time
 import numpy as np
