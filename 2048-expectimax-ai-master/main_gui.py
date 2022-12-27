@@ -1,3 +1,6 @@
+"""
+This file contains functions that render logical operators to perceived interface
+"""
 from tkinter import Frame, Label, CENTER
 from random import randint
 import time
@@ -9,6 +12,9 @@ SIZE = 500
 GRID_LEN = 4
 GRID_PADDING = 10
 
+"""
+Used colors
+"""
 BACKGROUND_COLOR_GAME = "#92877d"
 BACKGROUND_COLOR_CELL_EMPTY = "#9e948a"
 BACKGROUND_COLOR_DICT = {   2:"#eee4da", 4:"#ede0c8", 8:"#f2b179", 16:"#f59563", \
@@ -24,7 +30,7 @@ class GameGrid(Frame):
         Frame.__init__(self)
 
         self.grid()
-        self.master.title('2048')
+        self.master.title('Game 2048 - Intro to AI Project')
         self.grid_cells = []
 
         self.init_grid()
