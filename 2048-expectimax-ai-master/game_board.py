@@ -1,9 +1,10 @@
+"""
+This file contains logical operators of the game 
+"""
 import numpy as np
-from numba import jit
 
 dirs = [UP, DOWN, LEFT, RIGHT] = range(4)
 
-@jit
 def merge(a):
     for i in [0,1,2,3]:
         for j in [0,1,2]:
@@ -12,7 +13,6 @@ def merge(a):
                 a[i][j + 1] = 0   
     return a
 
-@jit
 def justify_left(a, out):
     for i in [0,1,2,3]:
         c = 0
@@ -22,7 +22,6 @@ def justify_left(a, out):
                 c += 1
     return out
 
-@jit
 def get_available_from_zeros(a):
     uc, dc, lc, rc = False, False, False, False
 
@@ -52,6 +51,8 @@ def get_available_from_zeros(a):
                     lc = True
                 if v_saw_0[j]:
                     uc = True
+            # print(v_saw_0, end="-");  print(v_saw_1)
+
 
     return [uc, dc, lc, rc]
 
@@ -99,6 +100,7 @@ class GameBoard:
             self.grid = self.grid[:,::-1].T
         if dir == LEFT:
             self.grid = justify_left(self.grid, z1)
+            # Do a left swift
             self.grid = merge(self.grid)
             self.grid = justify_left(self.grid, z2)
         if dir == RIGHT:
@@ -134,3 +136,9 @@ class GameBoard:
 
     def get_cell_value(self, pos):
         return self.grid[pos[0]][pos[1]]
+if __name__ == "__main__":
+    a = np.array([[0,0,2,0],[0,0,0,0],[0,0,0,2],[0,0,0,2]])
+    print(a)
+    b = np.array([[1,0,1,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+    print(b)
+    print(justify_left(a, b))
