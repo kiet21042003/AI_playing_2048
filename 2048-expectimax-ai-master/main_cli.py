@@ -1,3 +1,6 @@
+"""
+This file will print the board at each state in form of plain text
+"""
 from game_board import GameBoard
 from ai import AI
 from random import randint, seed
