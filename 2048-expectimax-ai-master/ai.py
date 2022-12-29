@@ -72,17 +72,8 @@ class AI():
         #Weight_3
         utility = np.sum(weight_3 @ grid)
         empty_u, smooth_u, big_t_u = (0, 0, 0)
+
         
-        
-        #utility = average score of non-empty tiles
-        '''
-        empty_cells = board.get_available_cells()
-        for i in range(4):
-            for j in range(4):
-                utility += grid[i][j]
-        utility = utility / (16 - empty_cells)
-        empty_u, smooth_u, big_t_u = (0, 0, 0)
-        '''
         return (utility, empty_u, smooth_u, big_t_u)
 
     def maximize(self, board, depth = 0):
