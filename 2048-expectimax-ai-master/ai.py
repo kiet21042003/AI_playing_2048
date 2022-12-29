@@ -43,7 +43,6 @@ class AI():
         
         empty_w = 100000
         smoothness_w = 3
-
         empty_u = n_empty * empty_w
         smooth_u = smoothness ** smoothness_w
         big_t_u = big_t
@@ -55,13 +54,17 @@ class AI():
         
         #Weight_1
         
-        utility = np.sum(weight_1 @ grid)
+        for i in range(4):
+            for j in range(4):
+                utility += weight_1[i][j] * grid[i][j]
         empty_u, smooth_u, big_t_u = (0, 0, 0)
         
                 
         #Weight_2
         '''
-        utility = np.sum(weight_2 @ grid)
+        for i in range(4):
+            for j in range(4):
+                utility += weight_2[i][j] * grid[i][j]
         empty_u, smooth_u, big_t_u = (0, 0, 0)
         '''
         
