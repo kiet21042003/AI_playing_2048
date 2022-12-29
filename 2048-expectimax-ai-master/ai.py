@@ -14,10 +14,6 @@ weight_2 = [[4**6, 4**5, 4**4, 4**3],
             [4**4, 4**3, 4**2, 4], 
             [64, 16, 4, 1]] #symmetric 
 
-weight_3 = [[4**6, 4**6, 4**6, 4**6],
-            [4**6, 0, 0, 4**6],
-            [4**6, 0, 0, 4**6],
-            [4**6, 4**6, 4**6, 4**6]]
 
 class AI():
 
@@ -58,21 +54,16 @@ class AI():
         '''
         
         #Weight_1
-        '''
+        
         utility = np.sum(weight_1 @ grid)
         empty_u, smooth_u, big_t_u = (0, 0, 0)
-        '''
+        
                 
         #Weight_2
         '''
         utility = np.sum(weight_2 @ grid)
         empty_u, smooth_u, big_t_u = (0, 0, 0)
         '''
-        
-        #Weight_3
-        utility = np.sum(weight_3 @ grid)
-        empty_u, smooth_u, big_t_u = (0, 0, 0)
-
         
         return (utility, empty_u, smooth_u, big_t_u)
 
