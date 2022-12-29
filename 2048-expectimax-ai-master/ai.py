@@ -1,11 +1,23 @@
-"""
-This file contains functions used by AI when processes information
-"""
 import math
 import time
 import numpy as np
 
 UP, DOWN, LEFT, RIGHT = range(4)
+
+weight_1 = [[4**15, 4**14, 4**13, 4**12],
+            [4**8, 4**9, 4**10, 4**11], 
+            [4**7, 4**6, 4**5, 4**4], 
+            [1, 4, 16, 64]] #snake-shaped
+
+weight_2 = [[4**6, 4**5, 4**4, 4**3], 
+            [4**5, 4**4, 4**3, 4**2], 
+            [4**4, 4**3, 4**2, 4], 
+            [64, 16, 4, 1]] #symmetric 
+
+weight_3 = [[4**6, 4**6, 4**6, 4**6],
+            [4**6, 0, 0, 4**6],
+            [4**6, 0, 0, 4**6],
+            [4**6, 4**6, 4**6, 4**6]]
 
 class AI():
 
@@ -14,39 +26,63 @@ class AI():
         return best_move
 
     def eval_board(self, board, n_empty): 
-        """
-        Return the utility of the grid at given state. The utility itself includes 3 different components, which are empty_u(tility), smooth_u(tility), big_t_u(tility).
-        empty_u represents for the contribution of empty cells at that state to the current utility
-        smoothness_u represents for the "balance" of the current state
-        """
+        global weight_1
+        global weight_2
+        
         grid = board.grid
 
         utility = 0
         smoothness = 0
 
+        #Original function
+        '''
         big_t = np.sum(np.power(grid, 2))
         s_grid = np.sqrt(grid)
         smoothness -= np.sum(np.abs(s_grid[::,0] - s_grid[::,1]))
         smoothness -= np.sum(np.abs(s_grid[::,1] - s_grid[::,2]))
         smoothness -= np.sum(np.abs(s_grid[::,2] - s_grid[::,3]))
-
         smoothness -= np.sum(np.abs(s_grid[0,::] - s_grid[1,::]))
         smoothness -= np.sum(np.abs(s_grid[1,::] - s_grid[2,::]))
         smoothness -= np.sum(np.abs(s_grid[2,::] - s_grid[3,::]))
         
-        empty_w = 100000 # Empty weight
-        smoothness_w = 9 # Smootheness weight
+        empty_w = 100000
+        smoothness_w = 3
 
-        empty_u = n_empty * empty_w             # Empty utility 
-        smooth_u = smoothness ** smoothness_w   # Smooth utility
-        big_t_u = big_t                         # Big_t utility
-
+        empty_u = n_empty * empty_w
+        smooth_u = smoothness ** smoothness_w
+        big_t_u = big_t
+        
         utility += big_t
         utility += empty_u
         utility += smooth_u
-
-        # print((utility, empty_u, smooth_u, big_t_u))
-
+        '''
+        
+        #Weight_1
+        '''
+        utility = np.sum(weight_1 @ grid)
+        empty_u, smooth_u, big_t_u = (0, 0, 0)
+        '''
+                
+        #Weight_2
+        '''
+        utility = np.sum(weight_2 @ grid)
+        empty_u, smooth_u, big_t_u = (0, 0, 0)
+        '''
+        
+        #Weight_3
+        utility = np.sum(weight_3 @ grid)
+        empty_u, smooth_u, big_t_u = (0, 0, 0)
+        
+        
+        #utility = average score of non-empty tiles
+        '''
+        empty_cells = board.get_available_cells()
+        for i in range(4):
+            for j in range(4):
+                utility += grid[i][j]
+        utility = utility / (16 - empty_cells)
+        empty_u, smooth_u, big_t_u = (0, 0, 0)
+        '''
         return (utility, empty_u, smooth_u, big_t_u)
 
     def maximize(self, board, depth = 0):
@@ -107,11 +143,3 @@ class AI():
                 utility_sum[i] += utility[i] * t[2]
 
         return tuple(utility_sum)
-if __name__ == "__main__":
-    ai = AI()
-    grid = np.array([[1,1,1,0], [1,1,1,0], [1,1,1,0], [1,1,1,0]])
-    # s_grid = np.sqrt(grid)
-    # print(s_grid)
-    # print(np.sum(np.abs(s_grid[::,0] - s_grid[::,1])))
-    
-    print(ai.eval_board(grid, 4))
