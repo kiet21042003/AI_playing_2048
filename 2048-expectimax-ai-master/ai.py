@@ -4,15 +4,19 @@ import numpy as np
 
 UP, DOWN, LEFT, RIGHT = range(4)
 
-weight_1 = [[4**15, 4**14, 4**13, 4**12],
-            [4**8, 4**9, 4**10, 4**11], 
-            [4**7, 4**6, 4**5, 4**4], 
-            [1, 4, 16, 64]] #snake-shaped
+EMPTY_WEIGHT = 10**5
+POTENTIAL_MERGES_WEIGHT = 10**4
+MONOTONIC_RC_WEIGHT = 10**3
 
-weight_2 = [[4**6, 4**5, 4**4, 4**3], 
-            [4**5, 4**4, 4**3, 4**2], 
-            [4**4, 4**3, 4**2, 4], 
-            [64, 16, 4, 1]] #symmetric 
+SNAKE_WEIGHT_MATRIX = [[4**15, 4**14, 4**13, 4**12],
+                       [4**8, 4**9, 4**10, 4**11],
+                       [4**7, 4**6, 4**5, 4**4],
+                       [1, 4, 16, 64]]  # snake-shaped
+
+SYMMETRIC_MATRIX = [[4**6, 4**5, 4**4, 4**3],
+                    [4**5, 4**4, 4**3, 4**2],
+                    [4**4, 4**3, 4**2, 4],
+                    [64, 16, 4, 1]]  # symmetric
 
 
 class AI():
@@ -21,17 +25,58 @@ class AI():
         best_move, _ = self.maximize(board)
         return best_move
 
-    def eval_board(self, board, n_empty): 
-        global weight_1
-        global weight_2
-        
+    def eval_board(self, board, n_empty):
+        global EMPTY_WEIGHT, POTENTIAL_MERGES_WEIGHT, MONOTONIC_RC_WEIGHT, SNAKE_WEIGHT_MATRIX, SYMMETRIC_MATRIX
         grid = board.grid
 
         utility = 0
-        smoothness = 0
+        
+        #Function Tri nghĩ ra
+        '''
+        potential_merges = 0
+        num_of_mono_r = 0; num_of_mono_c = 0
+        pos_score = 0
+        # Count the number of monotonic rows and columns
+        for i in range(4):
+            if ((grid[i][0]>=grid[i][1]) and (grid[i][1]>=grid[i][2]) and (grid[i][2]>=grid[i][3])) or\
+                ((grid[i][0]<=grid[i][1]) and (grid[i][1]<=grid[i][2]) and (grid[i][2]<=grid[i][3])):
+                num_of_mono_r += 1
+            if ((grid[0][i]>=grid[1][i]) and (grid[1][i]>=grid[2][i]) and (grid[2][i]>=grid[3][i])) or\
+                ((grid[0][i]<=grid[1][i]) and (grid[1][i]<=grid[2][i]) and (grid[2][i]<=grid[3][i])):
+                num_of_mono_c += 1
+        # Count the number of possible merges
+        potential_merges += np.count_nonzero(
+            np.abs(grid[::, 0] - grid[::, 1]) == 0)
+        potential_merges += np.count_nonzero(
+            np.abs(grid[::, 1] - grid[::, 2]) == 0)
+        potential_merges += np.count_nonzero(
+            np.abs(grid[::, 2] - grid[::, 3]) == 0)
 
+        potential_merges += np.count_nonzero(
+            np.abs(grid[1, ::] - grid[2, ::]) == 0)
+        potential_merges += np.count_nonzero(
+            np.abs(grid[0, ::] - grid[1, ::]) == 0)
+        potential_merges += np.count_nonzero(
+            np.abs(grid[2, ::] - grid[3, ::]) == 0)
+
+        for i in range(4):
+            for j in range(4):
+                pos_score += SNAKE_WEIGHT_MATRIX[i][j] * grid[i][j]
+
+        empty_u = a = n_empty * EMPTY_WEIGHT
+        potential_merges_u = b = potential_merges * POTENTIAL_MERGES_WEIGHT
+        num_of_mono_u = c =  (num_of_mono_c + num_of_mono_r) * MONOTONIC_RC_WEIGHT
+
+        utility += empty_u
+        utility += potential_merges_u
+        utility += num_of_mono_u
+        utility += pos_score
+        '''
+        
         #Original function
         '''
+        smoothness = 0
+
         big_t = np.sum(np.power(grid, 2))
         s_grid = np.sqrt(grid)
         smoothness -= np.sum(np.abs(s_grid[::,0] - s_grid[::,1]))
@@ -43,34 +88,32 @@ class AI():
         
         empty_w = 100000
         smoothness_w = 3
-        empty_u = n_empty * empty_w
-        smooth_u = smoothness ** smoothness_w
-        big_t_u = big_t
+        empty_u = b = n_empty * empty_w
+        smooth_u = c = smoothness ** smoothness_w
+        big_t_u = big_t = a
         
         utility += big_t
         utility += empty_u
         utility += smooth_u
         '''
         
-        #Weight_1
-        
+        #Snake-shaped weight matrix function
         for i in range(4):
             for j in range(4):
-                utility += weight_1[i][j] * grid[i][j]
-        empty_u, smooth_u, big_t_u = (0, 0, 0)
+                utility += SNAKE_WEIGHT_MATRIX[i][j] * grid[i][j]
+        a, b, c = (0, 0, 0)
         
-                
-        #Weight_2
+        #Symmetric weight matrix function
         '''
         for i in range(4):
             for j in range(4):
-                utility += weight_2[i][j] * grid[i][j]
-        empty_u, smooth_u, big_t_u = (0, 0, 0)
+                utility += SYMMETRIC_MATRIX[i][j] * grid[i][j]
+        a, b, c = (0, 0, 0)
         '''
         
-        return (utility, empty_u, smooth_u, big_t_u)
+        return (utility, a, b, c)
 
-    def maximize(self, board, depth = 0):
+    def maximize(self, board, depth=0):
         moves = board.get_available_moves()
         moves_boards = []
 
@@ -79,7 +122,7 @@ class AI():
             m_board.move(m)
             moves_boards.append((m, m_board))
 
-        max_utility = (float('-inf'),0,0,0)
+        max_utility = (float('-inf'), 0, 0, 0)
         best_direction = None
 
         for mb in moves_boards:
@@ -91,14 +134,14 @@ class AI():
 
         return best_direction, max_utility
 
-    def chance(self, board, depth = 0):
+    def chance(self, board, depth=0):
         empty_cells = board.get_available_cells()
         n_empty = len(empty_cells)
 
-        #if n_empty >= 7 and depth >= 5:
-        #    return self.eval_board(board, n_empty)
+        if depth >= 8:
+            return self.eval_board(board, n_empty)
 
-        if n_empty >= 6 and depth >= 3:
+        if n_empty >= 6 and depth >= 2:
             return self.eval_board(board, n_empty)
 
         if n_empty >= 0 and depth >= 5:
@@ -112,7 +155,7 @@ class AI():
 
         chance_2 = (.9 * (1 / n_empty))
         chance_4 = (.1 * (1 / n_empty))
-        
+
         for empty_cell in empty_cells:
             possible_tiles.append((empty_cell, 2, chance_2))
             possible_tiles.append((empty_cell, 4, chance_4))
@@ -128,3 +171,5 @@ class AI():
                 utility_sum[i] += utility[i] * t[2]
 
         return tuple(utility_sum)
+
+    
