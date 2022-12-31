@@ -88,7 +88,7 @@ class AI():
         smoothness_w = 3
         empty_u = b = n_empty * empty_w
         smooth_u = c = smoothness ** smoothness_w
-        big_t_u = big_t = a
+        big_t_u = big_t
         
         utility += big_t
         utility += empty_u
