@@ -14,10 +14,10 @@ SNAKE_WEIGHT_MATRIX = [[4**15, 4**14, 4**13, 4**12],
             [4**7, 4**6, 4**5, 4**4],
             [1, 4, 16, 64]]  # snake-shaped
 
-weight_2 = [[4**6, 4**5, 4**4, 4**3],
-            [4**5, 4**4, 4**3, 4**2],
-            [4**4, 4**3, 4**2, 4],
-            [64, 16, 4, 1]]  # symmetric
+SYMMETRIC_WEIGHT_MATRIX = [[4**6, 4**5, 4**4, 4**3],
+                           [4**5, 4**4, 4**3, 4**2],
+                           [4**4, 4**3, 4**2, 4],
+                           [64, 16, 4, 1]]  # symmetric
 
 
 class AI():
@@ -30,6 +30,8 @@ class AI():
         grid = board.grid
 
         utility = 0
+        
+        #Hàm của Tri nghĩ
         potential_merges = 0
         num_of_mono_r = 0; num_of_mono_c = [0,0,0,0]
         pos_score = 0
@@ -60,16 +62,56 @@ class AI():
             for j in range(4):
                 pos_score += SNAKE_WEIGHT_MATRIX[i][j] * grid[i][j]
 
-        empty_u = n_empty * EMPTY_WEIGHT
-        potential_merges_u = potential_merges * POTENTIAL_MERGES_WEIGHT
-        num_of_mono_u = num_of_mono_r * MONOTONIC_R_WEIGHT + np.sum(np.array(np.dot(num_of_mono_c, MONOTONIC_C_WEIGHT)))
+        empty_u = a = n_empty * EMPTY_WEIGHT
+        potential_merges_u = b = potential_merges * POTENTIAL_MERGES_WEIGHT
+        num_of_mono_u = c = num_of_mono_r * MONOTONIC_R_WEIGHT + np.sum(np.array(np.dot(num_of_mono_c, MONOTONIC_C_WEIGHT)))
 
         utility += empty_u
         utility += potential_merges_u
         utility += num_of_mono_u
         utility += pos_score
+        
+        #Original function
+        '''
+        smoothness = 0
 
-        return (utility, empty_u, potential_merges_u, num_of_mono_u)
+        big_t = np.sum(np.power(grid, 2))
+        s_grid = np.sqrt(grid)
+        smoothness -= np.sum(np.abs(s_grid[::,0] - s_grid[::,1]))
+        smoothness -= np.sum(np.abs(s_grid[::,1] - s_grid[::,2]))
+        smoothness -= np.sum(np.abs(s_grid[::,2] - s_grid[::,3]))
+        smoothness -= np.sum(np.abs(s_grid[0,::] - s_grid[1,::]))
+        smoothness -= np.sum(np.abs(s_grid[1,::] - s_grid[2,::]))
+        smoothness -= np.sum(np.abs(s_grid[2,::] - s_grid[3,::]))
+        
+        empty_w = 100000
+        smoothness_w = 3
+        empty_u = b = n_empty * empty_w
+        smooth_u = c = smoothness ** smoothness_w
+        big_t_u = big_t = a
+        
+        utility += big_t
+        utility += empty_u
+        utility += smooth_u
+        '''
+        
+        #Snake-shaped weight matrix function
+        '''
+        for i in range(4):
+            for j in range(4):
+                utility += SNAKE_WEIGHT_MATRIX[i][j] * grid[i][j]
+        a, b, c = (0, 0, 0)
+        '''
+        
+        #Symmetric weight matrix function
+        '''
+        for i in range(4):
+            for j in range(4):
+                utility += SYMMETRIC_WEIGHT_MATRIX[i][j] * grid[i][j]
+        a, b, c = (0, 0, 0)
+        '''
+
+        return (utility, a, b, c)
 
     def maximize(self, board, depth=0):
         moves = board.get_available_moves()
@@ -97,7 +139,7 @@ class AI():
         n_empty = len(empty_cells)
 
         if depth >= 8:
-           return self.eval_board(board, n_empty)
+            return self.eval_board(board, n_empty)
 
         if n_empty >= 6 and depth >= 2:
             return self.eval_board(board, n_empty)
@@ -130,11 +172,5 @@ class AI():
 
         return tuple(utility_sum)
 
-
-if (__name__ == "__main__"):
-    a = np.array([[1,2],[3,4]]) 
-    b = np.array([[1,2],[3,4]]) 
-    
-    print(np.dot(a,b))
 
     
