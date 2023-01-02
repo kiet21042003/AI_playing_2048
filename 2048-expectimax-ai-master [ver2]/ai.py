@@ -10,14 +10,24 @@ MONOTONIC_R_WEIGHT = 10**3
 MONOTONIC_C_WEIGHT = [1, 10**1, 10**2, 10**3]
 
 SNAKE_WEIGHT_MATRIX = [[4**15, 4**14, 4**13, 4**12],
-            [4**8, 4**9, 4**10, 4**11],
-            [4**7, 4**6, 4**5, 4**4],
-            [1, 4, 16, 64]]  # snake-shaped
+                       [4**8, 4**9, 4**10, 4**11],
+                       [4**7, 4**6, 4**5, 4**4],
+                       [4**0, 4**1, 4**2, 4**3]]  # snake-shaped
 
 SYMMETRIC_WEIGHT_MATRIX = [[4**6, 4**5, 4**4, 4**3],
                            [4**5, 4**4, 4**3, 4**2],
-                           [4**4, 4**3, 4**2, 4],
-                           [64, 16, 4, 1]]  # symmetric
+                           [4**4, 4**3, 4**2, 4**1],
+                           [4**3, 4**2, 4**1, 4**0]]  # symmetric
+
+EDGE_EVALUATION_MATRIX = [[4**6, 4**5, 4**4, 4**3],
+                          [4**5, 0, 0, 4**2],
+                          [4**4, 0, 0, 4**1],
+                          [4**3, 4**2, 4**1, 4**0]]
+
+SPIRAL_MATRIX = [[4**15, 4**14, 4**13, 4**12],
+                 [4**4, 4**3, 4**2, 4**11],
+                 [4**5, 4**0, 4**1, 4**10],
+                 [4**6, 4**7, 4**8, 4**9]]
 
 
 class AI():
@@ -32,6 +42,7 @@ class AI():
         utility = 0
         
         #Hàm của Tri nghĩ
+        '''
         potential_merges = 0
         num_of_mono_r = 0; num_of_mono_c = [0,0,0,0]
         pos_score = 0
@@ -70,6 +81,7 @@ class AI():
         utility += potential_merges_u
         utility += num_of_mono_u
         utility += pos_score
+        '''
         
         #Original function
         '''
@@ -88,7 +100,7 @@ class AI():
         smoothness_w = 3
         empty_u = b = n_empty * empty_w
         smooth_u = c = smoothness ** smoothness_w
-        big_t_u = big_t
+        big_t_u = big_t = a
         
         utility += big_t
         utility += empty_u
@@ -110,7 +122,23 @@ class AI():
                 utility += SYMMETRIC_WEIGHT_MATRIX[i][j] * grid[i][j]
         a, b, c = (0, 0, 0)
         '''
-
+        
+        #Edge evaluation matrix
+        '''
+        for i in range(4):
+            for j in range(4):
+                utility += EDGE_EVALUATION_MATRIX[i][j] * grid[i][j]
+        a, b, c = (0, 0, 0)
+        '''
+        
+        #Spiral matrix
+        
+        for i in range(4):
+            for j in range(4):
+                utility += SPIRAL_MATRIX[i][j] * grid[i][j]
+        a, b, c = (0, 0, 0)
+        
+        
         return (utility, a, b, c)
 
     def maximize(self, board, depth=0):
