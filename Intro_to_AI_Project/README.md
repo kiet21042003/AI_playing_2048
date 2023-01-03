@@ -7,7 +7,7 @@ Making use of the Tkinter library, we developed a Python AI version for the orig
 - Each subdirectory includes a README file in which the instruction is contained.
 
 ## List of member
-- Our team consist of 4 members:
+- Our team consists of 4 members:
 1. Phạm Tuấn Kiệt       20214909
 2. Nguyễn Quang Tri     20210860
 3. Nguyễn Thanh Bình    20210106
